@@ -13,9 +13,7 @@ namespace lt = libtorrent;
 
 void print_usage(const char *prog_name)
 {
-	std::cout << "usage: " << prog_name << "\n"
-	          << "sample client"
-	          << "\n";
+	std::cout << "usage: " << prog_name << " <torrent-file>\n";
 }
 
 int main(int argc, char *argv[])
