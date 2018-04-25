@@ -30,8 +30,7 @@ int main(int argc, char *argv[])
 
 	lt::add_torrent_params params;
 	params.save_path = "./";
-	params.ti = boost::make_shared<lt::torrent_info>(std::string(argv[1]),
-	                                                 boost::ref(ec));
+	params.ti = boost::make_shared<lt::torrent_info>(argv[1], ec);
 	if (ec) {
 		std::cerr << ec.message() << "\n";
 		return EXIT_FAILURE;
