@@ -1,5 +1,3 @@
-# Taken from https://github.com/steeve/libtorrent/blob/master/examples/cmake/FindLibtorrentRasterbar.cmake
-
 # - Try to find libtorrent-rasterbar
 #
 # If not using pkg-config, you can pre-set LibtorrentRasterbar_CUSTOM_DEFINITIONS
@@ -13,6 +11,7 @@
 #  LibtorrentRasterbar_DEFINITIONS - Compiler switches required for using libtorrent-rasterbar
 #  LibtorrentRasterbar_OPENSSL_ENABLED - libtorrent-rasterbar uses and links against OpenSSL
 
+find_package(Threads REQUIRED)
 find_package(PkgConfig QUIET)
 
 if(PKG_CONFIG_FOUND)
@@ -21,7 +20,7 @@ endif()
 
 if(LibtorrentRasterbar_USE_STATIC_LIBS)
     set(LibtorrentRasterbar_ORIG_CMAKE_FIND_LIBRARY_SUFFIXES ${CMAKE_FIND_LIBRARY_SUFFIXES})
-    set(CMAKE_FIND_LIBRARY_SUFFIXES .a)
+    set(CMAKE_FIND_LIBRARY_SUFFIXES ${CMAKE_STATIC_LIBRARY_SUFFIX})
 endif()
 
 if(PC_LIBTORRENT_RASTERBAR_FOUND)
@@ -37,16 +36,13 @@ else()
             -DTORRENT_USE_OPENSSL
             -DTORRENT_DISABLE_GEO_IP
             -DBOOST_ASIO_ENABLE_CANCELIO
-            -DUNICODE -D_UNICODE -D_FILE_OFFSET_BITS=64)
+            -D_FILE_OFFSET_BITS=64)
     endif()
 
-    if(LibtorrentRasterbar_USE_STATIC_LIBS)
-        list(APPEND LibtorrentRasterbar_DEFINITIONS -DBOOST_ASIO_SEPARATE_COMPILATION)
-    else()
+    if(NOT LibtorrentRasterbar_USE_STATIC_LIBS)
         list(APPEND LibtorrentRasterbar_DEFINITIONS
-            -DTORRENT_LINKING_SHARED -DBOOST_ASIO_DYN_LINK
-            -DBOOST_DATE_TIME_DYN_LINK -DBOOST_THREAD_DYN_LINK
-            -DBOOST_SYSTEM_DYN_LINK -DBOOST_CHRONO_DYN_LINK)
+            -DTORRENT_LINKING_SHARED
+            -DBOOST_SYSTEM_DYN_LINK)
     endif()
 endif()
 
@@ -63,13 +59,15 @@ if(LibtorrentRasterbar_USE_STATIC_LIBS)
     set(CMAKE_FIND_LIBRARY_SUFFIXES ${LibtorrentRasterbar_ORIG_CMAKE_FIND_LIBRARY_SUFFIXES})
 endif()
 
-set(LibtorrentRasterbar_LIBRARIES ${LibtorrentRasterbar_LIBRARY})
+set(LibtorrentRasterbar_LIBRARIES ${LibtorrentRasterbar_LIBRARY} ${CMAKE_THREAD_LIBS_INIT})
 set(LibtorrentRasterbar_INCLUDE_DIRS ${LibtorrentRasterbar_INCLUDE_DIR})
 
-if(NOT Boost_SYSTEM_FOUND OR NOT Boost_THREAD_FOUND OR NOT Boost_DATE_TIME_FOUND OR NOT Boost_CHRONO_FOUND)
-    find_package(Boost REQUIRED COMPONENTS system thread date_time chrono)
-    set(LibtorrentRasterbar_LIBRARIES ${LibtorrentRasterbar_LIBRARIES} ${Boost_LIBRARIES})
-    set(LibtorrentRasterbar_INCLUDE_DIRS ${LibtorrentRasterbar_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS})
+if(NOT Boost_SYSTEM_FOUND OR NOT Boost_RANDOM_FOUND)
+    find_package(Boost REQUIRED COMPONENTS system random)
+    set(LibtorrentRasterbar_LIBRARIES
+        ${LibtorrentRasterbar_LIBRARIES} ${Boost_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
+    set(LibtorrentRasterbar_INCLUDE_DIRS
+        ${LibtorrentRasterbar_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS})
 endif()
 
 list(FIND LibtorrentRasterbar_DEFINITIONS -DTORRENT_USE_OPENSSL LibtorrentRasterbar_ENCRYPTION_INDEX)
@@ -87,9 +85,7 @@ find_package_handle_standard_args(LibtorrentRasterbar DEFAULT_MSG
                                   LibtorrentRasterbar_LIBRARY
                                   LibtorrentRasterbar_INCLUDE_DIR
                                   Boost_SYSTEM_FOUND
-                                  Boost_THREAD_FOUND
-                                  Boost_DATE_TIME_FOUND
-                                  Boost_CHRONO_FOUND)
+                                  Boost_RANDOM_FOUND)
 
 mark_as_advanced(LibtorrentRasterbar_INCLUDE_DIR LibtorrentRasterbar_LIBRARY
     LibtorrentRasterbar_ORIG_CMAKE_FIND_LIBRARY_SUFFIXES
