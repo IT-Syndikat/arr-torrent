@@ -1,9 +1,11 @@
 cmake_minimum_required(VERSION 3.5)
-project(arr-torrent LANGUAGES CXX)
+project(arr-torrent VERSION 0.1 LANGUAGES CXX)
 
 set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake ${CMAKE_MODULE_PATH})
 
 include(defaults)
+
+add_definitions(-DARR_TORRENT_VERSION="${PROJECT_VERSION}")
 
 find_package(Boost REQUIRED)
 find_package(LibtorrentRasterbar REQUIRED)
