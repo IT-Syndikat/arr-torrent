@@ -8,9 +8,9 @@ include(defaults)
 add_definitions(-DARR_TORRENT_VERSION="${PROJECT_VERSION}")
 
 find_package(Boost REQUIRED)
-find_package(LibtorrentRasterbar REQUIRED)
+find_package(LibtorrentRasterbar REQUIRED COMPONENTS system)
 
-add_executable(arr src/main.cpp)
+add_executable(arr src/main.cpp src/command_server.cpp)
 target_compile_definitions(arr PRIVATE ${LibtorrentRasterbar_DEFINITIONS})
 target_include_directories(arr PRIVATE ${Boost_INCLUDE_DIRS} ${LibtorrentRasterbar_INCLUDE_DIRS})
 target_link_libraries(arr ${Boost_LIBRARIES} ${LibtorrentRasterbar_LIBRARIES})
