@@ -34,7 +34,7 @@ int main(int argc, char *argv[])
 	// run command server
 	try {
 		boost::asio::io_service io_service;
-		arr::command_server server(io_service, 1337);
+		arr::server server(io_service, 1337);
 		io_service.run();
 	} catch (std::exception &e) {
 		std::cerr << "Exception: " << e.what() << "\n";

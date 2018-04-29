@@ -1,42 +1,48 @@
 #include "command_server.hpp"
 
 #include <iostream>
+#include <utility>
 
-#include <boost/bind.hpp>
+using namespace boost::asio;
 
 namespace arr
 {
 
-void command_session::start()
+session::session(ip::tcp::socket socket) : m_socket(std::move(socket)) {}
+
+void session::start()
 {
-	m_socket.async_read_some(boost::asio::buffer(m_data, sizeof(m_data)),
-	                         boost::bind(&command_session::handle_read, this, boost::asio::placeholders::error,
-	                                     boost::asio::placeholders::bytes_transferred));
+	do_read();
 }
 
-void command_session::handle_read(const boost::system::error_code &ec, size_t bytes_transferred)
+void session::do_read()
 {
-	std::cerr << "TODO handle read\n";
-	m_socket.get_io_service().stop();
-	delete this;
+	auto self(shared_from_this());
+
+	auto cb = [this, self](boost::system::error_code ec, std::size_t length) {
+		if (!ec) {
+			std::cerr << "TODO handle read\n";
+			m_socket.get_io_service().stop();
+		}
+	};
+
+	m_socket.async_read_some(buffer(m_data, sizeof(m_data)), cb);
 }
 
-void command_server::start_accept()
+server::server(io_service &io_service, short port)
+    : m_socket(io_service), m_acceptor(io_service, ip::tcp::endpoint(ip::address_v4::loopback(), port))
 {
-	command_session *new_session = new command_session(m_io_service);
-	m_acceptor.async_accept(new_session->socket(), boost::bind(&command_server::handle_accept, this, new_session,
-	                                                           boost::asio::placeholders::error));
+	do_accept();
 }
-
-void command_server::handle_accept(command_session *new_session, const boost::system::error_code &ec)
+void server::do_accept()
 {
-	if (!ec) {
-		new_session->start();
-	} else {
-		delete new_session;
-	}
+	auto cb = [this](boost::system::error_code ec) {
+		if (!ec) {
+			std::make_shared<session>(std::move(m_socket))->start();
+		}
+	};
 
-	start_accept();
+	m_acceptor.async_accept(m_socket, cb);
 }
 
 } // end namespace arr
