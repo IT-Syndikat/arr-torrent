@@ -26,7 +26,7 @@ int main(int argc, char *argv[])
 		return EXIT_FAILURE;
 	}
 
-	auto settings = lt::default_settings();
+	lt::settings_pack settings;
 	settings.set_str(lt::settings_pack::listen_interfaces, "0.0.0.0:6881");
 
 	lt::session session(settings);
