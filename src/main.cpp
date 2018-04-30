@@ -1,5 +1,6 @@
 #include <iostream>
 
+#include <cstdio>
 #include <cstdlib>
 
 #include <boost/asio.hpp>
@@ -12,6 +13,8 @@
 using namespace boost::asio::ip;
 
 namespace lt = libtorrent;
+
+const auto UNIX_SOCKET_PATH = "/tmp/arr-torrent-cmd-srv.sock";
 
 void print_usage(const char *prog_name)
 {
@@ -32,7 +35,9 @@ int main(int argc, char *argv[])
 	lt::session session(settings);
 
 	// run command server
-	arr::server server(session.get_io_service(), 1337);
+	std::remove(UNIX_SOCKET_PATH);
+	arr::protocol::endpoint endpoint(UNIX_SOCKET_PATH);
+	arr::server server(session.get_io_service(), endpoint);
 	server.wait_until_quit();
 
 	return EXIT_SUCCESS;

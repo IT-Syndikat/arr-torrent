@@ -10,20 +10,22 @@
 namespace arr
 {
 
+using protocol = boost::asio::local::stream_protocol;
+
 class session;
 class server;
 
 class session : public std::enable_shared_from_this<session>
 {
   public:
-	session(boost::asio::ip::tcp::socket socket, server &server);
+	session(protocol::socket socket, server &server);
 
 	void start();
 
   private:
 	void do_read();
 
-	boost::asio::ip::tcp::socket m_socket;
+	protocol::socket m_socket;
 
 	server &m_server;
 
@@ -33,7 +35,7 @@ class session : public std::enable_shared_from_this<session>
 class server
 {
   public:
-	server(boost::asio::io_service &io_service, short port);
+	server(boost::asio::io_service &io_service, protocol::endpoint endpoint);
 
 	void quit();
 
@@ -42,9 +44,9 @@ class server
   private:
 	void do_accept();
 
-	boost::asio::ip::tcp::socket m_socket;
+	protocol::socket m_socket;
 
-	boost::asio::ip::tcp::acceptor m_acceptor;
+	protocol::acceptor m_acceptor;
 
 	volatile bool m_quit = false;
 	std::mutex m_quit_lock;

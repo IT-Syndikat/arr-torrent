@@ -9,7 +9,7 @@ using namespace boost::asio;
 namespace arr
 {
 
-session::session(ip::tcp::socket socket, server &server) : m_socket(std::move(socket)), m_server(server) {}
+session::session(protocol::socket socket, server &server) : m_socket(std::move(socket)), m_server(server) {}
 
 void session::start()
 {
@@ -30,8 +30,8 @@ void session::do_read()
 	m_socket.async_read_some(buffer(m_data, sizeof(m_data)), cb);
 }
 
-server::server(io_service &io_service, short port)
-    : m_socket(io_service), m_acceptor(io_service, ip::tcp::endpoint(ip::address_v4::loopback(), port))
+server::server(io_service &io_service, protocol::endpoint endpoint)
+    : m_socket(io_service), m_acceptor(io_service, endpoint)
 {
 	do_accept();
 }
