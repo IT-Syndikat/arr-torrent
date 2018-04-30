@@ -1,6 +1,7 @@
 #include "command_server.hpp"
 
 #include <iostream>
+#include <thread>
 #include <utility>
 
 using namespace boost::asio;
@@ -8,7 +9,7 @@ using namespace boost::asio;
 namespace arr
 {
 
-session::session(ip::tcp::socket socket) : m_socket(std::move(socket)) {}
+session::session(ip::tcp::socket socket, server &server) : m_socket(std::move(socket)), m_server(server) {}
 
 void session::start()
 {
@@ -22,7 +23,7 @@ void session::do_read()
 	auto cb = [this, self](boost::system::error_code ec, std::size_t length) {
 		if (!ec) {
 			std::cerr << "TODO handle read\n";
-			m_socket.get_io_service().stop();
+			m_server.quit();
 		}
 	};
 
@@ -34,11 +35,27 @@ server::server(io_service &io_service, short port)
 {
 	do_accept();
 }
+
+void server::quit()
+{
+	{
+		std::lock_guard<std::mutex> lk(m_quit_lock);
+		m_quit = true;
+	}
+	m_quit_cv.notify_all();
+}
+
+void server::wait_until_quit()
+{
+	auto ul = std::unique_lock<std::mutex>(m_quit_lock);
+	m_quit_cv.wait(ul, [&]() { return m_quit; });
+}
+
 void server::do_accept()
 {
 	auto cb = [this](boost::system::error_code ec) {
 		if (!ec) {
-			std::make_shared<session>(std::move(m_socket))->start();
+			std::make_shared<session>(std::move(m_socket), *this)->start();
 		}
 	};
 

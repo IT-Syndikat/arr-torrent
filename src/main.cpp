@@ -32,14 +32,8 @@ int main(int argc, char *argv[])
 	lt::session session(settings);
 
 	// run command server
-	try {
-		boost::asio::io_service io_service;
-		arr::server server(io_service, 1337);
-		io_service.run();
-	} catch (std::exception &e) {
-		std::cerr << "Exception: " << e.what() << "\n";
-		return EXIT_FAILURE;
-	}
+	arr::server server(session.get_io_service(), 1337);
+	server.wait_until_quit();
 
 	return EXIT_SUCCESS;
 }
