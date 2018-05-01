@@ -9,7 +9,10 @@ using namespace boost::asio;
 namespace arr
 {
 
-session::session(protocol::socket socket, server &server) : m_socket(std::move(socket)), m_server(server) {}
+session::session(protocol::socket socket, server &server)
+    : m_socket(std::move(socket)), m_server(server)
+{
+}
 
 void session::start()
 {
