@@ -29,6 +29,7 @@ void session::start()
 void session::read_msg_size()
 {
 	auto self(shared_from_this());
+
 	auto cb = [this, self](boost::system::error_code ec, std::size_t length) {
 		if (ec || length != sizeof(m_msg_size)) {
 			std::cerr << "Error: Unable to read message size\n";
@@ -45,10 +46,12 @@ void session::read_msg_size()
 
 		m_msg_buffer.reserve(m_msg_size);
 
-		auto cb = [this, self](boost::system::error_code ec,
-		                       std::size_t length) { read_msg(ec, length); };
-
-		m_socket.async_read_some(buffer(m_msg_buffer), cb);
+		// next phase: reading the message
+		m_socket.async_read_some(
+		    buffer(m_msg_buffer),
+		    [this, self](boost::system::error_code ec, std::size_t length) {
+			    read_msg(ec, length);
+		    });
 	};
 
 	m_socket.async_read_some(buffer(&m_msg_size, sizeof(m_msg_size)), cb);
@@ -61,6 +64,7 @@ void session::read_msg(boost::system::error_code ec, std::size_t length)
 		return;
 	}
 
+	// decode received message
 	commands::Command cmd;
 	{
 		using namespace boost::iostreams;
@@ -71,6 +75,7 @@ void session::read_msg(boost::system::error_code ec, std::size_t length)
 		}
 	}
 
+	// handle it
 	if (cmd.has_quit()) {
 		std::cout << "Quit received\n";
 		m_server.quit();
