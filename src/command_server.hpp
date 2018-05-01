@@ -4,6 +4,9 @@
 #include <condition_variable>
 #include <memory>
 #include <mutex>
+#include <vector>
+
+#include <cstdint>
 
 #include <boost/asio.hpp>
 
@@ -23,13 +26,16 @@ class session : public std::enable_shared_from_this<session>
 	void start();
 
   private:
-	void do_read();
+	void read_msg_size();
+
+	void read_msg(boost::system::error_code ec, std::size_t length);
 
 	protocol::socket m_socket;
 
 	server &m_server;
 
-	char m_data[1024];
+	std::uint32_t m_msg_size;
+	std::vector<char> m_msg_buffer;
 };
 
 class server
@@ -42,7 +48,7 @@ class server
 	void wait_until_quit();
 
   private:
-	void do_accept();
+	void accept();
 
 	protocol::socket m_socket;
 

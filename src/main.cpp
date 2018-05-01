@@ -8,6 +8,7 @@
 #include <libtorrent/session.hpp>
 
 #include "command_server.hpp"
+#include "commands.pb.h"
 #include "version.hpp"
 
 using namespace boost::asio::ip;
@@ -24,21 +25,29 @@ void print_usage(const char *prog_name)
 
 int main(int argc, char *argv[])
 {
+	// Verify that the version of the library that we linked against is
+	// compatible with the version of the headers we compiled against.
+	GOOGLE_PROTOBUF_VERIFY_VERSION;
+
 	if (argc > 1) {
 		print_usage(argv[0]);
 		return EXIT_FAILURE;
 	}
 
-	lt::settings_pack settings;
-	settings.set_str(lt::settings_pack::listen_interfaces, "0.0.0.0:6881");
+	{
+		lt::settings_pack settings;
+		settings.set_str(lt::settings_pack::listen_interfaces, "0.0.0.0:6881");
 
-	lt::session session(settings);
+		lt::session session(settings);
 
-	// run command server
-	std::remove(UNIX_SOCKET_PATH);
-	arr::protocol::endpoint endpoint(UNIX_SOCKET_PATH);
-	arr::server server(session.get_io_service(), endpoint);
-	server.wait_until_quit();
+		// run command server
+		std::remove(UNIX_SOCKET_PATH);
+		arr::protocol::endpoint endpoint(UNIX_SOCKET_PATH);
+		arr::server server(session.get_io_service(), endpoint);
+		server.wait_until_quit();
+	}
+
+	google::protobuf::ShutdownProtobufLibrary();
 
 	return EXIT_SUCCESS;
 }
