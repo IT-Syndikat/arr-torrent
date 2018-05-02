@@ -46,45 +46,46 @@ void session::read_msg_size()
 
 		m_msg_buffer.resize(m_msg_size);
 
-		// next phase: reading the message
-		m_socket.async_read_some(
-		    buffer(m_msg_buffer),
-		    [this, self](boost::system::error_code ec, std::size_t length) {
-			    read_msg(ec, length);
-		    });
+		read_msg();
 	};
 
 	m_socket.async_read_some(buffer(&m_msg_size, sizeof(m_msg_size)), cb);
 }
 
-void session::read_msg(boost::system::error_code ec, std::size_t length)
+void session::read_msg()
 {
-	if (ec || length != m_msg_buffer.size()) {
-		std::cerr << "Error: Unable to read message\n";
-		return;
-	}
+	auto self(shared_from_this());
 
-	// decode received message
-	commands::Command cmd;
-	{
-		using namespace boost::iostreams;
-		stream<array_source> bs(m_msg_buffer.data(), m_msg_buffer.size());
-		if (!cmd.ParseFromIstream(&bs)) {
-			std::cerr << "Error: Failed to parse command\n";
+	auto cb = [this, self](boost::system::error_code ec, std::size_t length) {
+		if (ec || length != m_msg_buffer.size()) {
+			std::cerr << "Error: Unable to read message\n";
 			return;
 		}
-	}
 
-	// handle it
-	if (cmd.has_quit()) {
-		std::cout << "Quit received\n";
-		m_server.quit();
-	} else {
-		std::cerr << "Error: Unhandled command\n";
-	}
+		// decode received message
+		commands::Command cmd;
+		{
+			using namespace boost::iostreams;
+			stream<array_source> bs(m_msg_buffer.data(), m_msg_buffer.size());
+			if (!cmd.ParseFromIstream(&bs)) {
+				std::cerr << "Error: Failed to parse command\n";
+				return;
+			}
+		}
 
-	// next
-	read_msg_size();
+		// handle it
+		if (cmd.has_quit()) {
+			std::cout << "Quit received\n";
+			m_server.quit();
+		} else {
+			std::cerr << "Error: Unhandled command\n";
+		}
+
+		// next
+		read_msg_size();
+	};
+
+	m_socket.async_read_some(buffer(m_msg_buffer), cb);
 }
 
 server::server(io_service &io_service, protocol::endpoint endpoint)

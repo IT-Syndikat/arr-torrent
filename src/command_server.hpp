@@ -28,7 +28,7 @@ class session : public std::enable_shared_from_this<session>
   private:
 	void read_msg_size();
 
-	void read_msg(boost::system::error_code ec, std::size_t length);
+	void read_msg();
 
 	protocol::socket m_socket;
 
