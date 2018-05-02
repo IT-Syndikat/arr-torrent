@@ -36,7 +36,6 @@ void session::read_msg_size()
 		}
 
 		m_msg_size = ntohl(m_msg_size);
-		std::cout << "Message size: " << m_msg_size << "\n";
 
 		if (m_msg_size > MAX_MESSAGE_SIZE) {
 			std::cerr << "Error: Message exceeds " << MAX_MESSAGE_SIZE << "\n";
