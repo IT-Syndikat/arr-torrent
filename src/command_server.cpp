@@ -1,7 +1,6 @@
 #include "command_server.hpp"
 
 #include <iostream>
-#include <thread>
 #include <utility>
 
 #include <boost/iostreams/device/array.hpp>

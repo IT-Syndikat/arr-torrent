@@ -1,9 +1,7 @@
 #ifndef ARR_TORRENT_SERVER_HPP
 #define ARR_TORRENT_SERVER_HPP
 
-#include <condition_variable>
 #include <memory>
-#include <mutex>
 #include <vector>
 
 #include <cstdint>
