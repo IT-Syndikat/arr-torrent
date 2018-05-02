@@ -44,7 +44,7 @@ void session::read_msg_size()
 			return;
 		}
 
-		m_msg_buffer.reserve(m_msg_size);
+		m_msg_buffer.resize(m_msg_size);
 
 		// next phase: reading the message
 		m_socket.async_read_some(
@@ -59,7 +59,7 @@ void session::read_msg_size()
 
 void session::read_msg(boost::system::error_code ec, std::size_t length)
 {
-	if (ec || m_msg_buffer.size() != length) {
+	if (ec || length != m_msg_buffer.size()) {
 		std::cerr << "Error: Unable to read message\n";
 		return;
 	}
@@ -82,6 +82,9 @@ void session::read_msg(boost::system::error_code ec, std::size_t length)
 	} else {
 		std::cerr << "Error: Unhandled command\n";
 	}
+
+	// next
+	read_msg_size();
 }
 
 server::server(io_service &io_service, protocol::endpoint endpoint)
@@ -92,17 +95,12 @@ server::server(io_service &io_service, protocol::endpoint endpoint)
 
 void server::quit()
 {
-	{
-		std::lock_guard<std::mutex> lk(m_quit_lock);
-		m_quit = true;
-	}
-	m_quit_cv.notify_all();
+	m_socket.get_io_service().stop();
 }
 
 void server::wait_until_quit()
 {
-	auto ul = std::unique_lock<std::mutex>(m_quit_lock);
-	m_quit_cv.wait(ul, [&]() { return m_quit; });
+	m_socket.get_io_service().run();
 }
 
 void server::accept()

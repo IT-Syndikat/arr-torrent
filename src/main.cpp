@@ -41,9 +41,10 @@ int main(int argc, char *argv[])
 		lt::session session(settings);
 
 		// run command server
+		boost::asio::io_service io_service;
 		std::remove(UNIX_SOCKET_PATH);
 		arr::protocol::endpoint endpoint(UNIX_SOCKET_PATH);
-		arr::server server(session.get_io_service(), endpoint);
+		arr::server server(io_service, endpoint);
 		server.wait_until_quit();
 	}
 

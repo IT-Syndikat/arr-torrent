@@ -53,10 +53,6 @@ class server
 	protocol::socket m_socket;
 
 	protocol::acceptor m_acceptor;
-
-	volatile bool m_quit = false;
-	std::mutex m_quit_lock;
-	std::condition_variable m_quit_cv;
 };
 
 } // end namespace arr
