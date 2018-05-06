@@ -8,6 +8,8 @@
 
 #include <boost/asio.hpp>
 
+#include "commands.pb.h"
+
 namespace arr
 {
 
@@ -27,6 +29,8 @@ class session : public std::enable_shared_from_this<session>
 	void read_msg_size();
 
 	void read_msg();
+
+	bool handle_command(const commands::Command &cmd);
 
 	protocol::socket m_socket;
 

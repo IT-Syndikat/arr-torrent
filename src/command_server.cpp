@@ -6,8 +6,6 @@
 #include <boost/iostreams/device/array.hpp>
 #include <boost/iostreams/stream.hpp>
 
-#include "commands.pb.h"
-
 using namespace boost::asio;
 
 namespace arr
@@ -71,19 +69,26 @@ void session::read_msg()
 			}
 		}
 
-		// handle it
-		if (cmd.has_quit()) {
-			std::cout << "Quit received\n";
-			m_server.quit();
-		} else {
-			std::cerr << "Error: Unhandled command\n";
-		}
+		auto cont = handle_command(cmd);
 
-		// next
-		read_msg_size();
+		if (cont) {
+			read_msg_size();
+		}
 	};
 
 	m_socket.async_read_some(buffer(m_msg_buffer), cb);
+}
+
+bool session::handle_command(const commands::Command &cmd)
+{
+	if (cmd.has_quit()) {
+		std::cout << "Quit received\n";
+		m_server.quit();
+		return false;
+	}
+
+	std::cerr << "Error: Unhandled command\n";
+	return true;
 }
 
 server::server(io_service &io_service, protocol::endpoint endpoint)
