@@ -20,7 +20,6 @@ msg = struct.pack("!L%ds" % length, length, payload)
 
 print("packed: ", msg)
 
-s = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
-s.connect(UNIX_SOCKET_PATH)
-s.sendall(msg)
-s.close()
+with socket.socket(socket.AF_UNIX, socket.SOCK_STREAM) as s:
+    s.connect(UNIX_SOCKET_PATH)
+    s.sendall(msg)
