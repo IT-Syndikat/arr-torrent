@@ -6,6 +6,7 @@
 #include <boost/asio.hpp>
 
 #include "commands.pb.h"
+#include "version.hpp"
 
 using protocol = boost::asio::local::stream_protocol;
 
@@ -51,6 +52,7 @@ class client
 void print_usage(const char *prog_name)
 {
 	std::cout << "usage: " << prog_name << " <command>\n"
+	          << "version: " << ARR_TORRENT_VERSION << "\n"
 	          << "command:\n"
 	          << "    quit        send quit signal to daemon\n";
 }

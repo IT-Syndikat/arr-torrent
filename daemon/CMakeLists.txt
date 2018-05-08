@@ -14,6 +14,7 @@ target_compile_definitions(arr
 target_include_directories(arr
 	PRIVATE
 	${CMAKE_CURRENT_BINARY_DIR}
+	${PROJECT_SOURCE_DIR}/common
 	${Boost_INCLUDE_DIRS}
 	${LibtorrentRasterbar_INCLUDE_DIRS}
 	${Protobuf_INCLUDE_DIRS}

@@ -8,6 +8,7 @@ add_executable(arr-client
 target_include_directories(arr-client
 	PRIVATE
 	${CMAKE_CURRENT_BINARY_DIR}
+	${PROJECT_SOURCE_DIR}/common
 	${Boost_INCLUDE_DIRS}
 )
 
