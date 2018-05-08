@@ -26,7 +26,7 @@ target_compile_definitions(arr
 
 target_include_directories(arr
 	PRIVATE
-	${CMAKE_CURRENT_BINARY_DIR}
+	${PROJECT_BINARY_DIR}
 	${Boost_INCLUDE_DIRS}
 	${LibtorrentRasterbar_INCLUDE_DIRS}
 	${Protobuf_INCLUDE_DIRS}
@@ -37,3 +37,5 @@ target_link_libraries(arr
 	${LibtorrentRasterbar_LIBRARIES}
 	${Protobuf_LIBRARIES}
 )
+
+add_subdirectory(client)
