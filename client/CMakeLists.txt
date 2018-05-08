@@ -1,3 +1,5 @@
+protobuf_generate_cpp(PROTO_SRCS PROTO_HDRS ../common/commands.proto)
+
 add_executable(arr-client
 	main.cpp
 	${PROTO_SRCS} ${PROTO_HDRS}
@@ -5,8 +7,8 @@ add_executable(arr-client
 
 target_include_directories(arr-client
 	PRIVATE
+	${CMAKE_CURRENT_BINARY_DIR}
 	${Boost_INCLUDE_DIRS}
-	${PROJECT_BINARY_DIR}
 )
 
 target_link_libraries(arr-client

@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+package arr.commands;
+
+message Quit {}
+
+message Command {
+  oneof command {
+    Quit quit = 1;
+  }
+}
