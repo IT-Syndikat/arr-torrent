@@ -3,9 +3,6 @@
 #include <iostream>
 #include <utility>
 
-#include <boost/iostreams/device/array.hpp>
-#include <boost/iostreams/stream.hpp>
-
 using namespace boost::asio;
 
 namespace arr
@@ -40,8 +37,6 @@ void session::read_msg_size()
 			return;
 		}
 
-		m_msg_buffer.resize(m_msg_size);
-
 		read_msg();
 	};
 
@@ -53,17 +48,18 @@ void session::read_msg()
 	auto self(shared_from_this());
 
 	auto cb = [this, self](boost::system::error_code ec, std::size_t length) {
-		if (ec || length != m_msg_buffer.size()) {
+		if (ec || length != m_msg_size) {
 			std::cerr << "Error: Unable to read message\n";
 			return;
 		}
 
+		m_msg_buffer.commit(m_msg_size);
+
 		// decode received message
 		commands::Command cmd;
 		{
-			using namespace boost::iostreams;
-			stream<array_source> bs(m_msg_buffer.data(), m_msg_buffer.size());
-			if (!cmd.ParseFromIstream(&bs)) {
+			std::istream is(&m_msg_buffer);
+			if (!cmd.ParseFromIstream(&is)) {
 				std::cerr << "Error: Failed to parse command\n";
 				return;
 			}
@@ -76,7 +72,7 @@ void session::read_msg()
 		}
 	};
 
-	m_socket.async_read_some(buffer(m_msg_buffer), cb);
+	m_socket.async_read_some(m_msg_buffer.prepare(m_msg_size), cb);
 }
 
 bool session::handle_command(const commands::Command &cmd)

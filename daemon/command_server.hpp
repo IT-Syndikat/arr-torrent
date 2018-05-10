@@ -37,7 +37,7 @@ class session : public std::enable_shared_from_this<session>
 	server &m_server;
 
 	std::uint32_t m_msg_size;
-	std::vector<char> m_msg_buffer;
+	boost::asio::streambuf m_msg_buffer;
 };
 
 class server
