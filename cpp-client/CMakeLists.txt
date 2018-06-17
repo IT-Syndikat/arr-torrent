@@ -17,3 +17,5 @@ target_link_libraries(arr-torrent
 	${Boost_LIBRARIES}
 	${Protobuf_LIBRARIES}
 )
+
+install(TARGETS arr-torrent RUNTIME DESTINATION bin)

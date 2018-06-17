@@ -25,3 +25,5 @@ target_link_libraries(arr-torrentd
 	${LibtorrentRasterbar_LIBRARIES}
 	${Protobuf_LIBRARIES}
 )
+
+install(TARGETS arr-torrentd RUNTIME DESTINATION bin)
