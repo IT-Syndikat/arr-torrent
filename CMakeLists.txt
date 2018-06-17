@@ -11,5 +11,5 @@ find_package(Boost REQUIRED)
 find_package(LibtorrentRasterbar REQUIRED)
 find_package(Protobuf REQUIRED)
 
-add_subdirectory(client)
+add_subdirectory(cpp-client)
 add_subdirectory(daemon)
