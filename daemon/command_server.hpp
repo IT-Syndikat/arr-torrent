@@ -7,13 +7,13 @@
 #include <cstdint>
 
 #include <boost/asio.hpp>
-
-#include "commands.pb.h"
+#include <json.hpp>
 
 namespace arr
 {
 
 using protocol = boost::asio::local::stream_protocol;
+using json = nlohmann::json;
 
 class session;
 class server;
@@ -30,14 +30,14 @@ class session : public std::enable_shared_from_this<session>
 
 	void read_msg();
 
-	bool handle_command(const commands::Command &cmd);
+	bool handle_command(const json j);
 
 	protocol::socket m_socket;
 
 	server &m_server;
 
 	std::uint32_t m_msg_size;
-	boost::asio::streambuf m_msg_buffer;
+	std::vector<uint8_t> m_msg_buffer;
 };
 
 class server

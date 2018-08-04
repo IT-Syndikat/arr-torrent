@@ -4,6 +4,7 @@
 #include <utility>
 
 using namespace boost::asio;
+using json = nlohmann::json;
 
 namespace arr
 {
@@ -53,31 +54,24 @@ void session::read_msg()
 			return;
 		}
 
-		m_msg_buffer.commit(m_msg_size);
-
 		// decode received message
-		commands::Command cmd;
-		{
-			std::istream is(&m_msg_buffer);
-			if (!cmd.ParseFromIstream(&is)) {
-				std::cerr << "Error: Failed to parse command\n";
-				return;
-			}
-		}
 
-		auto cont = handle_command(cmd);
+		json j = json::from_cbor(m_msg_buffer);
+
+		auto cont = handle_command(j);
 
 		if (cont) {
 			read_msg_size();
 		}
 	};
 
-	m_socket.async_read_some(m_msg_buffer.prepare(m_msg_size), cb);
+	m_msg_buffer = std::vector<uint8_t>(m_msg_size);
+	m_socket.async_read_some(boost::asio::buffer(m_msg_buffer), cb);
 }
 
-bool session::handle_command(const commands::Command &cmd)
+bool session::handle_command(const json j)
 {
-	if (cmd.has_quit()) {
+	if(j["cmd"] == "quit") {
 		std::cout << "Quit received\n";
 		m_server.quit();
 		return false;

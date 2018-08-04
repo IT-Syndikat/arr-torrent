@@ -1,8 +1,0 @@
-#ifndef ARR_TORRENT_VERSION_HPP
-#define ARR_TORRENT_VERSION_HPP
-
-#ifndef ARR_TORRENT_VERSION
-#define ARR_TORRENT_VERSION "unknown"
-#endif
-
-#endif  // ARR_TORRENT_VERSION_HPP
